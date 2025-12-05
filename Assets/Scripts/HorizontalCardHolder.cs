@@ -244,11 +244,59 @@ public class HorizontalCardHolder : MonoBehaviour
 
     IEnumerator WaitAndRefill()
     {
+        // 1. 稍微等待一下，让刚才打出的牌先飞走，错开动画节奏
+        yield return new WaitForSeconds(0.2f);
+
+        // 2. 计算需要补几张牌
+        int cardsNeeded = 10 - cards.Count;
+
+        if (cardsNeeded > 0)
+        {
+            for (int i = 0; i < cardsNeeded; i++)
+            {
+                // 安全检查：如果牌库空了就停止发牌
+                if (deck.Count == 0)
+                {
+                    Debug.LogWarning("牌库空了！无法继续补牌。");
+                    // 这里未来可以加入“洗牌（Reshuffle）”逻辑，把弃牌堆洗回牌库
+                    break; 
+                }
+
+                // --- 从牌堆拿数据 ---
+                CardData data = deck[0];
+                deck.RemoveAt(0);
+
+                // --- 生成新卡牌 (逻辑与 DealCards 相同) ---
+                GameObject slotObj = Instantiate(slotPrefab, transform);
+                Card cardScript = slotObj.GetComponentInChildren<Card>();
+                
+                // 设置数据
+                cardScript.SetData(data);
+                
+                // 重新绑定事件 (必须做，否则新牌无法交互)
+                cardScript.PointerEnterEvent.AddListener(CardPointerEnter);
+                cardScript.PointerExitEvent.AddListener(CardPointerExit);
+                cardScript.BeginDragEvent.AddListener(BeginDrag);
+                cardScript.EndDragEvent.AddListener(EndDrag);
+                
+                // 设置名字方便调试
+                cardScript.name = $"{data.suit}_{data.rank}";
+
+                // 加入逻辑列表
+                cards.Add(cardScript);
+            }
+        }
+
+        // 3. 关键：等待一帧
+        // 因为 Instantiate 生成的物体，其 Start() 方法（负责生成 Visual）要到下一帧才执行
         yield return new WaitForEndOfFrame();
-        // 更新剩余卡牌的视觉索引
+
+        // 4. 更新所有卡牌的视觉位置（包括老牌和刚补的新牌）
         foreach (Card card in cards)
         {
-            if (card.cardVisual != null) card.cardVisual.UpdateIndex(transform.childCount);
+            // 此时新牌的 cardVisual 应该已经生成好了
+            if (card.cardVisual != null) 
+                card.cardVisual.UpdateIndex(transform.childCount);
         }
     }
 
