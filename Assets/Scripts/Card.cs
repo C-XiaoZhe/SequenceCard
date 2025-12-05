@@ -19,7 +19,7 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
     [Header("Selection")]
     public bool selected;
-    public float selectionOffset = 50;
+    public float selectionOffset = 150;
     private float pointerDownTime;
     private float pointerUpTime;
 
