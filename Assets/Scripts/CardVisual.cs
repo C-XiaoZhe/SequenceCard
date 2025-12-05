@@ -65,6 +65,26 @@ public class CardVisual : MonoBehaviour
     private float curveRotationOffset;
     private Coroutine pressCoroutine;
 
+    // [新增变量] 标记是否已打出
+    private bool isPlayed = false;
+
+    // [新增方法] 设置为已打出状态
+    public void SetPlayedState()
+    {
+        isPlayed = true;
+        // 归位旋转
+        transform.localRotation = Quaternion.identity;
+        tiltParent.localRotation = Quaternion.identity;
+        // 恢复缩放
+        transform.localScale = Vector3.one; 
+        
+        // 杀掉所有正在进行的动画
+        transform.DOKill();
+        shakeParent.DOKill();
+    }
+
+
+
     private void Start()
     {
         shadowDistance = visualShadow.localPosition;
@@ -100,6 +120,16 @@ public class CardVisual : MonoBehaviour
     {
         if (!initalize || parentCard == null) return;
 
+        // [修改] 如果已打出，只执行简单的跟随，不再执行曲线和倾斜
+        
+        if (isPlayed)
+        {
+            // 直接平滑跟随 Card 本体的位置，无偏移
+            transform.position = Vector3.Lerp(transform.position, parentCard.transform.position, followSpeed * Time.deltaTime);
+            return; 
+        }
+
+        // --- 以下是原有的手牌逻辑 ---
         HandPositioning();
         SmoothFollow();
         FollowRotation();
@@ -218,7 +248,7 @@ public class CardVisual : MonoBehaviour
 
 
     //以下为游戏玩法机制的实现
-    
+
     // 在 CardVisual 类内部添加这个方法
     public void SetFace(Sprite s)
     {

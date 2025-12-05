@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using TMPro; // [重要] 记得引入 TextMeshPro 命名空间
 using UnityEngine;
 using DG.Tweening;
 using System.Linq;
+// 需要引入这个命名空间来刷新布局
+using UnityEngine.UI;
 
 public class HorizontalCardHolder : MonoBehaviour
 {
@@ -24,6 +27,12 @@ public class HorizontalCardHolder : MonoBehaviour
 
     // [新增] 牌堆
     private List<CardData> deck = new List<CardData>();
+
+    [Header("Played Area References")]
+    [SerializeField] private Transform playedCardArea; // 出牌区容器
+    [SerializeField] private TMP_Text resultText;      // 显示判定结果的文本
+
+    
 
     void Start()
     {
@@ -155,30 +164,81 @@ public class HorizontalCardHolder : MonoBehaviour
 
         if (results.Count > 0)
         {
-            string resultStr = "判定成功! 符合条件: ";
-            foreach (var type in results) resultStr += type.ToString() + " ";
-            Debug.Log(resultStr);
+            // 1. 构建结果字符串
+            string resultStr = "";
+            foreach (var type in results)
+            {
+                // 这里可以根据类型转成中文显示
+                switch(type)
+                {
+                    case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列 "; break;
+                    case SequenceEvaluator.SequenceType.Arithmetic: resultStr += "等差数列 "; break;
+                    case SequenceEvaluator.SequenceType.Increasing: resultStr += "递增数列 "; break;
+                    case SequenceEvaluator.SequenceType.Decreasing: resultStr += "递减数列 "; break;
+                    case SequenceEvaluator.SequenceType.Odd: resultStr += "奇数列 "; break;
+                    case SequenceEvaluator.SequenceType.Even: resultStr += "偶数列 "; break;
+                    case SequenceEvaluator.SequenceType.Fibonacci: resultStr += "斐波那契数列 "; break;
+                }
+            }
+            
+            // 2. 更新 UI 文本
+            if (resultText != null) resultText.text = resultStr;
 
-            // TODO: 在这里执行出牌动画，销毁卡牌，计算分数等
+            // 3. 执行出牌搬运
             PerformPlaySuccess(selectedCards);
         }
         else
         {
-            Debug.Log("判定失败：不符合任何数列条件。");
-            // 这里可以播放一个失败的晃动动画
+            Debug.Log("判定失败");
+            if (resultText != null) resultText.text = "无效牌型";
+            // 可以在这里让选中的牌晃动一下提示错误
         }
+
     }
 
     void PerformPlaySuccess(List<Card> playedCards)
     {
-        // 简单的出牌效果：销毁这些牌的父物体（Slot）并从列表中移除
+        // 1. 清空出牌区 (保持不变)
+        if (playedCardArea != null)
+        {
+            foreach (Transform child in playedCardArea) Destroy(child.gameObject);
+        }
+
+        // 2. 搬运卡牌
         foreach (Card c in playedCards)
         {
-            cards.Remove(c); // 从逻辑列表移除
-            Destroy(c.transform.parent.gameObject); // 销毁场景物体(Slot)
+            cards.Remove(c); 
+            GameObject oldSlot = c.transform.parent.gameObject;
+
+            if (playedCardArea != null)
+            {
+                c.transform.SetParent(playedCardArea);
+                
+                // 【新增关键代码 1】重置局部坐标
+                // 这会让逻辑卡牌瞬间跳到 PlayedCardArea 的中心（或附近）
+                // 随后 LayoutGroup 会把它排好序
+                c.transform.localPosition = Vector3.zero; 
+                c.transform.localRotation = Quaternion.identity;
+                c.transform.localScale = Vector3.one; // 防止缩放异常
+
+                c.OnPlayed(); 
+            }
+            else
+            {
+                Destroy(c.gameObject);
+            }
+
+            Destroy(oldSlot);
         }
-        
-        // 重新整理剩余卡牌的索引
+
+        // 【新增关键代码 2】强制刷新布局
+        // 这一步是为了确保逻辑卡牌立刻排列整齐，而不是等到下一帧
+        if (playedCardArea != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(playedCardArea.GetComponent<RectTransform>());
+        }
+
+        // 3. 重新整理手牌 (保持不变)
         StartCoroutine(WaitAndRefill());
     }
 

@@ -45,6 +45,25 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     public CardData data;
 
 
+    // [新增方法] 当卡牌被打出时调用
+    public void OnPlayed()
+    {
+        // 1. 禁用射线检测，这样鼠标就点不到它了
+        if (imageComponent != null) imageComponent.raycastTarget = false;
+        
+        // 2. 状态重置
+        isDragging = false;
+        isHovering = false;
+        selected = false;
+        
+        // 3. 通知视觉层冻结
+        if (cardVisual != null) cardVisual.SetPlayedState();
+
+        // 4. 禁用此脚本的 Update，停止位置钳制等计算
+        this.enabled = false;
+    }
+
+
 
     void Start()
     {
