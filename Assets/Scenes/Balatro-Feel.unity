@@ -713,12 +713,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 32
-    m_FontStyle: 1
+    m_Font: {fileID: 12800000, guid: 792f09134cc12f34a912f96682b7e77f, type: 3}
+    m_FontSize: 40
+    m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
-    m_MaxSize: 40
+    m_MaxSize: 48
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1866,8 +1866,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u7B49\u5F85\u51FA\u724C..."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4f1cea737d3f1ea43972e77afed98d33, type: 2}
-  m_sharedMaterial: {fileID: -7193526613021003888, guid: 4f1cea737d3f1ea43972e77afed98d33, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c0aa5992fbb93bc44a8867cc8e0afad4, type: 2}
+  m_sharedMaterial: {fileID: 7662614237359209055, guid: c0aa5992fbb93bc44a8867cc8e0afad4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1891,8 +1891,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

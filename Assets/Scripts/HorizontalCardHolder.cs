@@ -171,13 +171,13 @@ public class HorizontalCardHolder : MonoBehaviour
                 // 这里可以根据类型转成中文显示
                 switch(type)
                 {
-                    case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列 "; break;
-                    case SequenceEvaluator.SequenceType.Arithmetic: resultStr += "等差数列 "; break;
-                    case SequenceEvaluator.SequenceType.Increasing: resultStr += "递增数列 "; break;
-                    case SequenceEvaluator.SequenceType.Decreasing: resultStr += "递减数列 "; break;
-                    case SequenceEvaluator.SequenceType.Odd: resultStr += "奇数列 "; break;
-                    case SequenceEvaluator.SequenceType.Even: resultStr += "偶数列 "; break;
-                    case SequenceEvaluator.SequenceType.Fibonacci: resultStr += "斐波那契数列 "; break;
+                    case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Arithmetic: resultStr += "等差数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Increasing: resultStr += "递增数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Decreasing: resultStr += "递减数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Odd: resultStr += "奇数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Even: resultStr += "偶数列、 "; break;
+                    case SequenceEvaluator.SequenceType.Fibonacci: resultStr += "斐波那契数列、 "; break;
                 }
             }
             
