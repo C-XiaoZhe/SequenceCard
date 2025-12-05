@@ -7,28 +7,57 @@ public class ShaderCode : MonoBehaviour
 
     Image image;
     Material m;
-    CardVisual visual;
+    //CardVisual visual;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake() // 改为 Awake 确保通过GetComponent能尽早获取
     {
         image = GetComponent<Image>();
+        // 创建材质实例，防止所有卡牌共用一个材质
         m = new Material(image.material);
         image.material = m;
-        visual = GetComponentInParent<CardVisual>();
-
-        string[] editions = new string[4];
-        editions[0] = "REGULAR";
-        editions[1] = "POLYCHROME";
-        editions[2] = "REGULAR";
-        editions[3] = "NEGATIVE";
-
-        for (int i = 0; i < image.material.enabledKeywords.Length; i++)
-        {
-            image.material.DisableKeyword(image.material.enabledKeywords[i]);
-        }
-        image.material.EnableKeyword("_EDITION_" + editions[Random.Range(0, editions.Length)]);
+        
+        // 默认初始化为普通材质
+        SetEdition("REGULAR");
     }
+
+    // [新增] 公开方法：设置卡牌的效果版本
+    public void SetEdition(string editionName)
+    {
+        if (image == null || m == null) return;
+
+        // 1. 先禁用所有已知的关键字
+        // 假设Shader中定义的关键字是 _EDITION_REGULAR, _EDITION_POLYCHROME, _EDITION_NEGATIVE
+        m.DisableKeyword("_EDITION_REGULAR");
+        m.DisableKeyword("_EDITION_POLYCHROME");
+        m.DisableKeyword("_EDITION_NEGATIVE");
+        m.DisableKeyword("_EDITION_FOIL"); // 如果有全息等其他效果
+
+        // 2. 启用目标关键字
+        m.EnableKeyword("_EDITION_" + editionName);
+    }
+
+    // Start is called before the first frame update
+    // void Start()
+    // {
+    //     image = GetComponent<Image>();
+    //     m = new Material(image.material);
+    //     image.material = m;
+    //     visual = GetComponentInParent<CardVisual>();
+
+    //     string[] editions = new string[4];
+    //     editions[0] = "REGULAR";
+    //     editions[1] = "POLYCHROME";
+    //     editions[2] = "REGULAR";
+    //     editions[3] = "NEGATIVE";
+
+    //     for (int i = 0; i < image.material.enabledKeywords.Length; i++)
+    //     {
+    //         image.material.DisableKeyword(image.material.enabledKeywords[i]);
+    //     }
+    //     image.material.EnableKeyword("_EDITION_" + editions[Random.Range(0, editions.Length)]);
+    // }
+
+    
 
     // Update is called once per frame
     void Update()

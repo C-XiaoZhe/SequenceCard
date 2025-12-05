@@ -121,7 +121,7 @@ public class CardVisual : MonoBehaviour
         if (!initalize || parentCard == null) return;
 
         // [修改] 如果已打出，只执行简单的跟随，不再执行曲线和倾斜
-        
+
         if (isPlayed)
         {
             // 直接平滑跟随 Card 本体的位置，无偏移
@@ -255,6 +255,20 @@ public class CardVisual : MonoBehaviour
         if (cardImage != null && s != null)
         {
             cardImage.sprite = s;
+        }
+    }
+
+    // [新增] 更新卡牌特效
+    public void UpdateShaderEffect(string edition)
+    {
+        // 尝试在 cardImage (即显示卡面的物体) 上找到 ShaderCode 脚本
+        if (cardImage != null)
+        {
+            ShaderCode shaderScript = cardImage.GetComponent<ShaderCode>();
+            if (shaderScript != null)
+            {
+                shaderScript.SetEdition(edition);
+            }
         }
     }
 

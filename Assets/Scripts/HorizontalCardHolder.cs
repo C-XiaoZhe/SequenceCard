@@ -137,7 +137,7 @@ public class HorizontalCardHolder : MonoBehaviour
     
     public void PlaySelectedCards()
     {
-        // 1. 找出所有被选中的牌 (selected 为 true)
+        // 1. 找出所有被选中的牌
         List<Card> selectedCards = cards.Where(c => c.selected).ToList();
 
         // 2. 验证数量
@@ -147,28 +147,59 @@ public class HorizontalCardHolder : MonoBehaviour
             return;
         }
 
-        // 3. 核心步骤：按视觉顺序（从左到右）排序
-        // 因为玩家可能先选了右边的牌，再选左边的，或者拖拽改变了位置
+        // 3. 排序（按视觉位置从左到右）
         selectedCards.Sort((a, b) => a.ParentIndex().CompareTo(b.ParentIndex()));
 
-        // 4. 提取点数用于判定
+        // 4. 提取点数
         List<int> ranks = selectedCards.Select(c => c.data.rank).ToList();
         
-        // 打印调试：看看玩家打出了什么
-        string playStr = "玩家打出: ";
-        foreach (var r in ranks) playStr += r + " ";
-        Debug.Log(playStr);
-
-        // 5. 进行数列判定
+        // 5. 数列判定
         List<SequenceEvaluator.SequenceType> results = SequenceEvaluator.Evaluate(ranks);
 
         if (results.Count > 0)
         {
-            // 1. 构建结果字符串
+            // --- [新增核心逻辑：计算特效] 开始 ---
+            
+            // A. 检查是否包含斐波那契
+            bool hasFibonacci = results.Contains(SequenceEvaluator.SequenceType.Fibonacci);
+            
+            // B. 计算非斐波那契条件的数量
+            int otherConditionsCount = 0;
+            foreach (var type in results)
+            {
+                if (type != SequenceEvaluator.SequenceType.Fibonacci)
+                {
+                    otherConditionsCount++;
+                }
+            }
+
+            // C. 决定目标特效 (优先级：斐波那契 > 3+条件 > 普通)
+            string targetEdition = "REGULAR"; 
+
+            if (hasFibonacci)
+            {
+                targetEdition = "NEGATIVE";
+            }
+            else if (otherConditionsCount >= 3)
+            {
+                targetEdition = "POLYCHROME";
+            }
+
+            // D. 将特效应用到打出的每一张牌上
+            foreach (Card card in selectedCards)
+            {
+                if (card.cardVisual != null)
+                {
+                    card.cardVisual.UpdateShaderEffect(targetEdition);
+                }
+            }
+            // --- [新增核心逻辑] 结束 ---
+
+
+            // 6. 构建UI显示文本
             string resultStr = "";
             foreach (var type in results)
             {
-                // 这里可以根据类型转成中文显示
                 switch(type)
                 {
                     case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列、 "; break;
@@ -181,19 +212,18 @@ public class HorizontalCardHolder : MonoBehaviour
                 }
             }
             
-            // 2. 更新 UI 文本
-            if (resultText != null) resultText.text = resultStr;
+            // 显示牌型和获得的特效
+            if (resultText != null) 
+                resultText.text = resultStr;
 
-            // 3. 执行出牌搬运
+            // 7. 执行出牌搬运
             PerformPlaySuccess(selectedCards);
         }
         else
         {
             Debug.Log("判定失败");
             if (resultText != null) resultText.text = "无效牌型";
-            // 可以在这里让选中的牌晃动一下提示错误
         }
-
     }
 
     void PerformPlaySuccess(List<Card> playedCards)
