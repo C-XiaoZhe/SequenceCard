@@ -952,6 +952,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f651a77676c624984bb679a86b0add4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardSprites:
+  - {fileID: 890598969, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: 651181706, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: 1903642791, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: 1172300919, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -542822571, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: 1679151412, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -2055071574, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -1991189058, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -1583600496, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -146271010, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -1505848694, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: 472190513, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -300452712, guid: 7b2dbbabcbdb68c439dab784a5631ff7, type: 3}
+  - {fileID: -1052027690, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 1565452558, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -350701915, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 826050733, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -429169442, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 1416961673, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -2106656121, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 1749315262, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 1242502391, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: 77645464, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -209519400, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -1733640387, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -1465830991, guid: 12eb17f7b7f3f7242af5e1564d14e015, type: 3}
+  - {fileID: -1733399867, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 1469392560, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 870097725, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -1719224381, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 1191860156, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 1529568308, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 13627322, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -1832089394, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -1313375795, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 316764916, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -1330444406, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -2038184129, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: -827563534, guid: 769dede7a6784d1468aff99374f949e7, type: 3}
+  - {fileID: 10038200, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 354881832, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: -71321492, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: -281295910, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 1135756284, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 1615185535, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 830067868, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: -1705742706, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: -494383109, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: -1199650881, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 305920959, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 980346016, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
+  - {fileID: 301664684, guid: 0cbcd737ef93c4f43ab60c77ec560f67, type: 3}
 --- !u!1 &544559083
 GameObject:
   m_ObjectHideFlags: 0
