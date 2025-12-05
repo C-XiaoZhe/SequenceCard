@@ -41,6 +41,11 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     [HideInInspector] public UnityEvent<Card> EndDragEvent;
     [HideInInspector] public UnityEvent<Card, bool> SelectEvent;
 
+    //以下为游戏玩法机制的实现
+    public CardData data;
+
+
+
     void Start()
     {
         canvas = GetComponentInParent<Canvas>();
@@ -186,5 +191,18 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     {
         if(cardVisual != null)
         Destroy(cardVisual.gameObject);
+    }
+
+
+    //以下为游戏玩法机制的实现
+
+    // 用于初始化卡牌数据和更新UI
+    public void SetData(CardData newData)
+    {
+        this.data = newData;
+        gameObject.name = data.GetName(); // 修改物体名字方便调试
+        
+        // TODO: 这里以后需要调用 CardVisual 来更新卡面图片
+        // 比如: cardVisual.SetFace(data); 
     }
 }
