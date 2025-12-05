@@ -216,4 +216,16 @@ public class CardVisual : MonoBehaviour
         shadowCanvas.overrideSorting = false;
     }
 
+
+    //以下为游戏玩法机制的实现
+    
+    // 在 CardVisual 类内部添加这个方法
+    public void SetFace(Sprite s)
+    {
+        if (cardImage != null && s != null)
+        {
+            cardImage.sprite = s;
+        }
+    }
+
 }

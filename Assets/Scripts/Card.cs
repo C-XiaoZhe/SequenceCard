@@ -55,8 +55,24 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
             return;
 
         visualHandler = FindObjectOfType<VisualCardsHandler>();
+        
+        // 生成视觉层
         cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
         cardVisual.Initialize(this);
+
+        // 【新增】初始化后立即更新牌面
+        UpdateCardSprite();
+    }
+
+    // 【新增】更新图片的辅助方法
+    public void UpdateCardSprite()
+    {
+        // 确保必须有数据、有视觉层、且找到了图库单例
+        if (data != null && cardVisual != null && VisualCardsHandler.instance != null)
+        {
+            Sprite s = VisualCardsHandler.instance.GetCardSprite(data.suit, data.rank);
+            cardVisual.SetFace(s);
+        }
     }
 
     void Update()
