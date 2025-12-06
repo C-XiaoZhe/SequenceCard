@@ -63,7 +63,7 @@ MonoBehaviour:
   instantiateVisual: 1
   moveSpeedLimit: 50
   selected: 0
-  selectionOffset: 60
+  selectionOffset: 75
   cardVisualPrefab: {fileID: 7310339964073049012, guid: bddd0263814164da396aa8d1438dd810, type: 3}
   cardVisual: {fileID: 0}
   isHovering: 0
@@ -91,8 +91,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   data:
+    cardType: 0
     suit: 0
     rank: 0
+    operation: 0
 --- !u!114 &7486306067316991545
 MonoBehaviour:
   m_ObjectHideFlags: 0

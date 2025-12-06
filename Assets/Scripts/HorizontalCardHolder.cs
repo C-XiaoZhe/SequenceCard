@@ -22,19 +22,23 @@ public class HorizontalCardHolder : MonoBehaviour
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
 
-    // [新增] 牌堆
+    // 牌堆
     private List<CardData> deck = new List<CardData>();
 
     [Header("Played Area Settings")]
     public Transform playedCardArea; 
     public TMP_Text resultText;      
 
-    // [新增] 用于记录当前的打字机协程，以便在需要时停止它
+    [Header("References")]
+    // [重要] 请在 Inspector 中将场景里的 ArithmeticArea 物体拖入此处
+    public ArithmeticCardHolder arithmeticHolder; 
+
+    // 打字机协程引用
     private Coroutine typewritingCoroutine;
 
     void Start()
     {
-        // --- 步骤 1: 清理场景中残留的旧卡牌 ---
+        // 1. 清理
         if (transform.childCount > 0)
         {
             for (int i = transform.childCount - 1; i >= 0; i--)
@@ -43,17 +47,16 @@ public class HorizontalCardHolder : MonoBehaviour
             }
         }
 
-        // --- 步骤 2: 初始化并洗牌 ---
+        // 2. 初始化
         InitializeDeck(); 
         ShuffleDeck();
 
-        // --- 步骤 3: 只发 10 张牌 ---
+        // 3. 发牌
         DealCards(10);    
 
-        // --- 步骤 4: UI 组件初始化 ---
+        // 4. UI 初始化
         rect = GetComponent<RectTransform>();
 
-        // 初始化文本为空
         if (resultText != null) resultText.text = "";
 
         StartCoroutine(Frame());
@@ -74,6 +77,8 @@ public class HorizontalCardHolder : MonoBehaviour
         deck.Clear();
         foreach (Suit s in System.Enum.GetValues(typeof(Suit)))
         {
+            if (s == Suit.None) continue; // 跳过算术牌类型
+
             for (int i = 1; i <= 13; i++)
             {
                 deck.Add(new CardData(s, i));
@@ -121,6 +126,16 @@ public class HorizontalCardHolder : MonoBehaviour
 
     public void PlaySelectedCards()
     {
+        // --- [修改] 算术牌逻辑整合 ---
+        // 检查是否有选中的算术牌
+        if (arithmeticHolder != null && arithmeticHolder.arithmeticCards.Any(c => c.selected))
+        {
+            // 如果选中了算术牌，执行带动画的算术流程
+            StartCoroutine(PerformArithmeticSequence());
+            return; 
+        }
+        // ------------------------------------------
+
         List<Card> selectedCards = cards.Where(c => c.selected).ToList();
 
         if (selectedCards.Count < 3)
@@ -129,18 +144,18 @@ public class HorizontalCardHolder : MonoBehaviour
             return;
         }
 
-        // 1. 排序
+        // 排序
         selectedCards.Sort((a, b) => a.ParentIndex().CompareTo(b.ParentIndex()));
 
-        // 2. 提取点数
+        // 提取点数
         List<int> ranks = selectedCards.Select(c => c.data.rank).ToList();
         
-        // 3. 判定
+        // 判定
         List<SequenceEvaluator.SequenceType> results = SequenceEvaluator.Evaluate(ranks);
 
         if (results.Count > 0)
         {
-            // --- 特效判定逻辑 ---
+            // 特效判定
             bool hasFibonacci = results.Contains(SequenceEvaluator.SequenceType.Fibonacci);
             int otherConditionsCount = 0;
             foreach (var type in results)
@@ -152,42 +167,51 @@ public class HorizontalCardHolder : MonoBehaviour
             if (hasFibonacci) targetEdition = "NEGATIVE";
             else if (otherConditionsCount >= 3) targetEdition = "POLYCHROME";
 
+            // 判断是否触发特殊效果抖动
+            bool triggerShake = (targetEdition != "REGULAR");
+
             foreach (Card card in selectedCards)
             {
-                if (card.cardVisual != null) card.cardVisual.UpdateShaderEffect(targetEdition);
+                if (card.cardVisual != null) 
+                {
+                    card.cardVisual.UpdateShaderEffect(targetEdition);
+                    if (triggerShake) card.cardVisual.PlayConversionShake();
+                }
             }
 
-            // --- 文本构建 ---
-            // 修改点1：移除"判定成功: "前缀
-            string resultStr = "判定结果:  "; 
+            // 文本构建
+            string resultStr = ""; 
             foreach (var type in results)
             {
-                // 修改点2：加上“数列”二字
                 switch(type)
                 {
-                    case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列   "; break;
-                    case SequenceEvaluator.SequenceType.Arithmetic: resultStr += "等差数列   "; break;
-                    case SequenceEvaluator.SequenceType.Increasing: resultStr += "递增数列   "; break;
-                    case SequenceEvaluator.SequenceType.Decreasing: resultStr += "递减数列   "; break;
-                    case SequenceEvaluator.SequenceType.Odd: resultStr += "奇数列   "; break;
-                    case SequenceEvaluator.SequenceType.Even: resultStr += "偶数列   "; break;
-                    case SequenceEvaluator.SequenceType.Fibonacci: resultStr += "斐波那契数列   "; break;
+                    case SequenceEvaluator.SequenceType.Geometric: resultStr += "等比数列 "; break;
+                    case SequenceEvaluator.SequenceType.Arithmetic: resultStr += "等差数列 "; break;
+                    case SequenceEvaluator.SequenceType.Increasing: resultStr += "递增数列 "; break;
+                    case SequenceEvaluator.SequenceType.Decreasing: resultStr += "递减数列 "; break;
+                    case SequenceEvaluator.SequenceType.Odd: resultStr += "奇数列 "; break;
+                    case SequenceEvaluator.SequenceType.Even: resultStr += "偶数列 "; break;
+                    case SequenceEvaluator.SequenceType.Fibonacci: resultStr += "斐波那契数列 "; break;
                 }
             }
             
-            // 修改点3：只显示数列名称，不再显示特效描述
             string fullText = resultStr; 
 
-            // --- 调用打字机效果 ---
             if (resultText != null)
             {
-                // 如果上一次的打字动画还没播完，先停止它
                 if (typewritingCoroutine != null) StopCoroutine(typewritingCoroutine);
-                // 开启新的打字动画
                 typewritingCoroutine = StartCoroutine(TypewriterEffect(fullText));
             }
 
-            PerformPlaySuccess(selectedCards);
+            // 如果有特效抖动，稍等一下再飞出
+            if (triggerShake)
+            {
+                StartCoroutine(DelayedPerformPlaySuccess(selectedCards, 0.5f));
+            }
+            else
+            {
+                PerformPlaySuccess(selectedCards);
+            }
         }
         else
         {
@@ -196,28 +220,60 @@ public class HorizontalCardHolder : MonoBehaviour
             {
                 if (typewritingCoroutine != null) StopCoroutine(typewritingCoroutine);
                 resultText.text = "无效牌型";
-                resultText.maxVisibleCharacters = 999; // 确保完全显示
+                resultText.maxVisibleCharacters = 999;
             }
         }
     }
 
-    // [新增] 打字机效果协程
+    // [新增] 算术牌动画流程协程
+    IEnumerator PerformArithmeticSequence()
+    {
+        // 1. 获取手牌区选中的卡牌
+        List<Card> selectedHandCards = cards.Where(c => c.selected).ToList();
+
+        if (selectedHandCards.Count > 0)
+        {
+            // 2. 对选中的手牌播放抖动动画
+            foreach (Card c in selectedHandCards)
+            {
+                if (c.cardVisual != null)
+                {
+                    c.cardVisual.PlayConversionShake();
+                }
+            }
+
+            // 3. 等待动画播放（让玩家看到牌在抖动，预示着变化）
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // 4. 执行实际的算术逻辑（数值转换）
+        // 这里调用 ArithmeticCardHolder 中的方法来修改数值和消耗算术牌
+        if (arithmeticHolder != null)
+        {
+            arithmeticHolder.ApplyArithmeticEffect();
+        }
+        
+        // 可选：转换完成后，可以再次刷新一下文本提示，或者让牌闪烁一下
+    }
+
     IEnumerator TypewriterEffect(string fullText)
     {
         resultText.text = fullText;
-        resultText.maxVisibleCharacters = 0; // 先隐藏所有文字
-
-        // 强制刷新网格，确保 TMP 能正确计算出字符数量 (textInfo)
+        resultText.maxVisibleCharacters = 0; 
         resultText.ForceMeshUpdate();
-
-        int totalChars = resultText.textInfo.characterCount; // 获取实际字符数（不包含富文本标签）
+        int totalChars = resultText.textInfo.characterCount; 
         
         for (int i = 0; i <= totalChars; i++)
         {
             resultText.maxVisibleCharacters = i;
-            // 这里的  是打字速度，可以根据需要调整
-            yield return new WaitForSeconds(0.1f); 
+            yield return new WaitForSeconds(0.05f); 
         }
+    }
+
+    IEnumerator DelayedPerformPlaySuccess(List<Card> playedCards, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        PerformPlaySuccess(playedCards);
     }
 
     void PerformPlaySuccess(List<Card> playedCards)

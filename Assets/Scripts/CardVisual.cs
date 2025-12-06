@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Unity.Collections;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using TMPro; // 引入 TMPro
 
 public class CardVisual : MonoBehaviour
 {
@@ -27,6 +28,9 @@ public class CardVisual : MonoBehaviour
     [SerializeField] private Transform shakeParent;
     [SerializeField] private Transform tiltParent;
     [SerializeField] private Image cardImage;
+    
+    // 用于显示算术牌文字
+    [SerializeField] private TextMeshProUGUI textOverlay; 
 
     [Header("Follow Parameters")]
     [SerializeField] private float followSpeed = 30;
@@ -63,27 +67,21 @@ public class CardVisual : MonoBehaviour
 
     private float curveYOffset;
     private float curveRotationOffset;
-    private Coroutine pressCoroutine;
-
-    // [新增变量] 标记是否已打出
+    
+    // 标记是否已打出
     private bool isPlayed = false;
 
-    // [新增方法] 设置为已打出状态
+    // 设置为已打出状态
     public void SetPlayedState()
     {
         isPlayed = true;
-        // 归位旋转
         transform.localRotation = Quaternion.identity;
         tiltParent.localRotation = Quaternion.identity;
-        // 恢复缩放
         transform.localScale = Vector3.one; 
         
-        // 杀掉所有正在进行的动画
         transform.DOKill();
         shakeParent.DOKill();
     }
-
-
 
     private void Start()
     {
@@ -92,13 +90,11 @@ public class CardVisual : MonoBehaviour
 
     public void Initialize(Card target, int index = 0)
     {
-        //Declarations
         parentCard = target;
         cardTransform = target.transform;
         canvas = GetComponent<Canvas>();
         shadowCanvas = visualShadow.GetComponent<Canvas>();
 
-        //Event Listening
         parentCard.PointerEnterEvent.AddListener(PointerEnter);
         parentCard.PointerExitEvent.AddListener(PointerExit);
         parentCard.BeginDragEvent.AddListener(BeginDrag);
@@ -107,7 +103,6 @@ public class CardVisual : MonoBehaviour
         parentCard.PointerUpEvent.AddListener(PointerUp);
         parentCard.SelectEvent.AddListener(Select);
 
-        //Initialization
         initalize = true;
     }
 
@@ -120,21 +115,16 @@ public class CardVisual : MonoBehaviour
     {
         if (!initalize || parentCard == null) return;
 
-        // [修改] 如果已打出，只执行简单的跟随，不再执行曲线和倾斜
-
         if (isPlayed)
         {
-            // 直接平滑跟随 Card 本体的位置，无偏移
             transform.position = Vector3.Lerp(transform.position, parentCard.transform.position, followSpeed * Time.deltaTime);
             return; 
         }
 
-        // --- 以下是原有的手牌逻辑 ---
         HandPositioning();
         SmoothFollow();
         FollowRotation();
         CardTilt();
-
     }
 
     private void HandPositioning()
@@ -186,14 +176,11 @@ public class CardVisual : MonoBehaviour
 
         if(scaleAnimations)
             transform.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
-
     }
 
     public void Swap(float dir = 1)
     {
-        if (!swapAnimations)
-            return;
-
+        if (!swapAnimations) return;
         DOTween.Kill(2, true);
         shakeParent.DOPunchRotation((Vector3.forward * swapRotationAngle) * dir, swapTransition, swapVibrato, 1).SetId(3);
     }
@@ -202,7 +189,6 @@ public class CardVisual : MonoBehaviour
     {
         if(scaleAnimations)
             transform.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
-
         canvas.overrideSorting = true;
     }
 
@@ -216,7 +202,6 @@ public class CardVisual : MonoBehaviour
     {
         if(scaleAnimations)
             transform.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
-
         DOTween.Kill(2, true);
         shakeParent.DOPunchRotation(Vector3.forward * hoverPunchAngle, hoverTransition, 20, 1).SetId(2);
     }
@@ -232,7 +217,6 @@ public class CardVisual : MonoBehaviour
         if(scaleAnimations)
             transform.DOScale(longPress ? scaleOnHover : scaleOnSelect, scaleTransition).SetEase(scaleEase);
         canvas.overrideSorting = false;
-
         visualShadow.localPosition = shadowDistance;
         shadowCanvas.overrideSorting = true;
     }
@@ -241,15 +225,11 @@ public class CardVisual : MonoBehaviour
     {
         if(scaleAnimations)
             transform.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
-            
         visualShadow.localPosition += (-Vector3.up * shadowOffset);
         shadowCanvas.overrideSorting = false;
     }
 
-
-    //以下为游戏玩法机制的实现
-
-    // 在 CardVisual 类内部添加这个方法
+    // 设置卡面显示 (兼容旧方法)
     public void SetFace(Sprite s)
     {
         if (cardImage != null && s != null)
@@ -258,10 +238,56 @@ public class CardVisual : MonoBehaviour
         }
     }
 
-    // [新增] 更新卡牌特效
+    // 设置卡面显示 (新方法：处理算术牌和普通牌)
+    public void SetFace(CardData data)
+    {
+        if (cardImage == null) return;
+
+        Sprite s = null;
+        if (VisualCardsHandler.instance != null)
+        {
+            s = VisualCardsHandler.instance.GetCardSprite(data);
+        }
+
+        if (s != null)
+        {
+            cardImage.sprite = s;
+            cardImage.color = Color.white;
+            if (textOverlay != null) textOverlay.gameObject.SetActive(false);
+        }
+        else
+        {
+            // 没图时的兜底显示逻辑
+            if (data.cardType == CardType.Arithmetic)
+            {
+                if (textOverlay != null)
+                {
+                    textOverlay.gameObject.SetActive(true);
+                    string op = "";
+                    switch(data.operation)
+                    {
+                        case ArithmeticOp.Add: op = "+"; break;
+                        case ArithmeticOp.Subtract: op = "-"; break;
+                        case ArithmeticOp.Multiply: op = "x"; break;
+                    }
+                    textOverlay.text = $"{op}{data.rank}";
+                    textOverlay.color = Color.black; 
+                }
+            }
+            else
+            {
+                if (textOverlay != null)
+                {
+                    textOverlay.gameObject.SetActive(true);
+                    textOverlay.text = $"{data.suit}\n{data.rank}";
+                }
+            }
+        }
+    }
+
+    // 更新卡牌特效
     public void UpdateShaderEffect(string edition)
     {
-        // 尝试在 cardImage (即显示卡面的物体) 上找到 ShaderCode 脚本
         if (cardImage != null)
         {
             ShaderCode shaderScript = cardImage.GetComponent<ShaderCode>();
@@ -272,4 +298,16 @@ public class CardVisual : MonoBehaviour
         }
     }
 
+    // [修改] 播放转换时的抖动动画 (旋转版)
+    public void PlayConversionShake()
+    {
+        shakeParent.DOKill();
+        
+        // DOPunchRotation: 产生震动旋转
+        // Vector3.forward * 20f: 绕 Z 轴(前后轴)旋转 20 度，即左右摇摆
+        // 0.5f: 持续时间
+        // 20: 震动频率 (数值越大抖动越快)
+        // 1: 弹性 (0-1)
+        shakeParent.DOPunchRotation(Vector3.forward * 25f, 0.75f, 20, 0.7f);
+    }
 }

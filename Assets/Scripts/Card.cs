@@ -86,11 +86,14 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     // 【新增】更新图片的辅助方法
     public void UpdateCardSprite()
     {
-        // 确保必须有数据、有视觉层、且找到了图库单例
         if (data != null && cardVisual != null && VisualCardsHandler.instance != null)
         {
-            Sprite s = VisualCardsHandler.instance.GetCardSprite(data.suit, data.rank);
+            // 传入整个 data 对象
+            Sprite s = VisualCardsHandler.instance.GetCardSprite(data);
             cardVisual.SetFace(s);
+            
+            // 如果是算术牌且没有图片，这里可以加个临时逻辑显示文字（可选）
+            // 这里我们假设你会在 VisualCardsHandler 里配置好图片
         }
     }
 
